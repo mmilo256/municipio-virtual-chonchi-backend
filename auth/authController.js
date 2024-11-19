@@ -64,8 +64,9 @@ export const handleCallback = async (req, res) => {
         console.log({ code, state, access_token })
         // Almacenar token en una cookie segura
         res.cookie('access_token', access_token, {
-            httpOnly: false,
-            secure: false
+            httpOnly: true,
+            secure: false,
+            sameSite: 'lax'
         })
         res.redirect(process.env.HOME_URL)
     } catch (error) {
