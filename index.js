@@ -17,7 +17,8 @@ app.use(session({
 // Middleware para generar el Token CSRF
 app.use((req, res, next) => {
     if (!req.session.csrfToken) {
-        req.session.csrfToken = crypto.randomBytes(30).toString('hex')
+        // req.session.csrfToken = crypto.randomBytes(30).toString('hex')
+        req.session.csrfToken = "csrf"
     }
     next()
 })

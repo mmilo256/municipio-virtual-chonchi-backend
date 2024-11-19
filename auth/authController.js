@@ -43,7 +43,8 @@ export const handleCallback = async (req, res) => {
                 "Content-Type": "application/x-www-form-urlencoded"
             }
         })
-        const data = response.data
+        const accessToken = response.data.access_token
+        res.redirect(process.env.HOME_URL)
         res.status(200).json({ code, state, data })
     } catch (error) {
         console.log(error)
