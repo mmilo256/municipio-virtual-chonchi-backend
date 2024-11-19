@@ -38,6 +38,7 @@ export const authRequest = async (req, res) => {
 export const handleCallback = async (req, res) => {
     const { code, state } = req.query
 
+    const homeURL = "http://localhost:5173/inicio"
     const accessTokenURL = "https://accounts.claveunica.gob.cl/openid/token/"
     const csrfToken = "csrf"
     try {
@@ -60,7 +61,7 @@ export const handleCallback = async (req, res) => {
             }
         })
         accessToken = response.data.access_token
-        res.redirect(process.env.HOME_URL)
+        res.redirect(homeURL)
         // res.status(200).json({ code, state, data: response.data })
     } catch (error) {
         console.log(error)
