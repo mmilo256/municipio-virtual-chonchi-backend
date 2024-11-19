@@ -1,28 +1,6 @@
 import axios from 'axios'
 import 'dotenv/config'
 
-export const getUserInfo = async (req, res) => {
-    const token = req.cookies.access_token
-
-    if (!token) {
-        return res.status(401).json({ message: "No autenticado" })
-    }
-    try {
-        // Usar token de acceso para obtener información del usuario
-        const userInfoURL = "https://accounts.claveunica.gob.cl/openid/userinfo/"
-        const userInfo = await axios.post(userInfoURL, null, {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        })
-        res.status(200).json({ data: userInfo })
-    } catch (error) {
-        console.log(error)
-        res.status(400).json({ error: error.message, message: "No se pudo obtener el token de acceso" })
-    }
-}
-
-
 // Solicitar autorización al servidor de autorización
 export const authRequest = async (req, res) => {
 
@@ -73,6 +51,8 @@ export const handleCallback = async (req, res) => {
             secure: false,
             sameSite: 'lax'
         })
+        // Debug
+        console.log({ code, state, access_token })
         res.redirect(process.env.HOME_URL)
     } catch (error) {
         console.log(error)

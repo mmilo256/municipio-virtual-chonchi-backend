@@ -2,9 +2,12 @@ import e from "express";
 import authRouter from './auth/authRoutes.js'
 import crypto from 'node:crypto'
 import session from "express-session";
+import cookieParser from "cookie-parser";
 
 const port = 10000
 const app = e()
+
+app.use(cookieParser())
 
 // Configuración del middleware de sesión
 app.use(session({
