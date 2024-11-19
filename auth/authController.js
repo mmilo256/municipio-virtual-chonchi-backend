@@ -1,6 +1,18 @@
 import axios from 'axios'
 import 'dotenv/config'
 
+// Obtener información del usuario
+export const getUserInfo = async (req, res) => {
+    try {
+        console.log("Access Token:", req.cookies.access_token)
+        console.log("Cookies:", req.cookies)
+        res.status(200).json({ message: "Funcionó" })
+    } catch (error) {
+        console.log(error)
+        res.status(400).json({ message: "No se pudo obtener la información del usuario", error: error.message })
+    }
+}
+
 // Solicitar autorización al servidor de autorización
 export const authRequest = async (req, res) => {
 
@@ -51,8 +63,6 @@ export const handleCallback = async (req, res) => {
             secure: false,
             sameSite: 'lax'
         })
-        // Debug
-        console.log({ code, state, access_token })
         res.redirect(process.env.HOME_URL)
     } catch (error) {
         console.log(error)
