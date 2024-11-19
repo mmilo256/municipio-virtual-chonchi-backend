@@ -1,6 +1,21 @@
 import axios from 'axios'
 import 'dotenv/config'
 
+let accessToken = null
+
+export const getAccessToken = async (req, res) => {
+    try {
+        if (accessToken) {
+            return res.status(404).json({ message: "No hay token de acceso" })
+        }
+        res.status(200).json({ accessToken })
+    } catch (error) {
+        console.log(error)
+        res.status(400).json({ error: error.message, message: "No se pudo obtener el token de acceso" })
+    }
+}
+
+
 // Solicitar autorización al servidor de autorización
 export const authRequest = async (req, res) => {
 
@@ -11,7 +26,7 @@ export const authRequest = async (req, res) => {
     const REDIRECT_URI = process.env.REDIRECT_URI
 
     try {
-        const requestURL = `${AUTH_URL}?client_id=${CLIENT_ID}&response_type=${RESPONSE_TYPE}&scope=${SCOPE}&redirect_uri=${REDIRECT_URI}&state=${req.session.csrfToken}`
+        const requestURL = `${AUTH_URL}?client_id=${CLIENT_ID}&response_type=${RESPONSE_TYPE}&scope=${SCOPE}&redirect_uri=${REDIRECT_URI}&state=csrf`
         res.redirect(requestURL)
     } catch (error) {
         console.error(error.message)
@@ -21,9 +36,10 @@ export const authRequest = async (req, res) => {
 
 // Intercambiar código de autorización obtenido después de la autorización por token de acceso
 export const handleCallback = async (req, res) => {
-    const accessTokenURL = "https://accounts.claveunica.gob.cl/openid/token"
     const { code, state } = req.query
-    const csrfToken = req.session.csrfToken
+
+    const accessTokenURL = "https://accounts.claveunica.gob.cl/openid/token/"
+    const csrfToken = "csrf"
     try {
         // Comprueba que el token anti-falsificación sea válido
         if (state !== csrfToken) {
@@ -43,11 +59,13 @@ export const handleCallback = async (req, res) => {
                 "Content-Type": "application/x-www-form-urlencoded"
             }
         })
-        const accessToken = response.data.access_token
-        res.redirect(process.env.HOME_URL)
-        res.status(200).json({ code, state, data })
+        accessToken = response.data.access_token
+        // res.redirect(process.env.HOME_URL)
+        res.status(200).json({ code, state, data: response.data })
     } catch (error) {
         console.log(error)
-        res.status(400).json({ message: "Hubo un error", error: error.message })
+        res.status(400).json({
+            message: "Hubo un error", error: error.message
+        })
     }
 } 
