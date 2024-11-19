@@ -1,14 +1,21 @@
 import axios from 'axios'
 import 'dotenv/config'
 
-let accessToken = null
+export const getUserInfo = async (req, res) => {
+    const token = req.cookies.access_token
 
-export const getAccessToken = async (req, res) => {
+    if (!token) {
+        return res.status(401).json({ message: "No autenticado" })
+    }
     try {
-        if (accessToken) {
-            return res.status(404).json({ message: "No hay token de acceso" })
-        }
-        res.status(200).json({ accessToken })
+        // Usar token de acceso para obtener información del usuario
+        const userInfoURL = "https://accounts.claveunica.gob.cl/openid/userinfo/"
+        const userInfo = await axios.post(userInfoURL, null, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+        res.status(200).json({ data: userInfo })
     } catch (error) {
         console.log(error)
         res.status(400).json({ error: error.message, message: "No se pudo obtener el token de acceso" })
@@ -38,7 +45,6 @@ export const authRequest = async (req, res) => {
 export const handleCallback = async (req, res) => {
     const { code, state } = req.query
 
-    const homeURL = "http://localhost:5173/inicio"
     const accessTokenURL = "https://accounts.claveunica.gob.cl/openid/token/"
     const csrfToken = "csrf"
     try {
@@ -60,9 +66,14 @@ export const handleCallback = async (req, res) => {
                 "Content-Type": "application/x-www-form-urlencoded"
             }
         })
-        accessToken = response.data.access_token
-        res.redirect(homeURL)
-        // res.status(200).json({ code, state, data: response.data })
+        const { access_token } = response.data
+        // Almacenar token en una cookie segura
+        res.cookie('access_token', access_token, {
+            httpOnly: true,
+            secure: false,
+            sameSite: 'lax'
+        })
+        res.redirect(process.env.HOME_URL)
     } catch (error) {
         console.log(error)
         res.status(400).json({
