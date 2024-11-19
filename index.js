@@ -6,7 +6,7 @@ import cookieParser from "cookie-parser";
 
 const port = 10000
 const app = e()
-
+app.use(cors())
 app.use(cookieParser())
 
 // Configuración del middleware de sesión
