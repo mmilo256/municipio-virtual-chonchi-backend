@@ -60,8 +60,8 @@ export const handleCallback = async (req, res) => {
             }
         })
         accessToken = response.data.access_token
-        // res.redirect(process.env.HOME_URL)
-        res.status(200).json({ code, state, data: response.data })
+        res.redirect(process.env.HOME_URL)
+        // res.status(200).json({ code, state, data: response.data })
     } catch (error) {
         console.log(error)
         res.status(400).json({
