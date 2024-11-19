@@ -1,5 +1,5 @@
 import e from "express";
-import { authRequest, handleCallback } from "./authController.js";
+import { authRequest, getUserInfo, handleCallback } from "./authController.js";
 
 const router = e.Router()
 
