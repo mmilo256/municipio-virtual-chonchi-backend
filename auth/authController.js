@@ -33,7 +33,7 @@ export const authRequest = async (req, res) => {
     const REDIRECT_URI = process.env.REDIRECT_URI
 
     try {
-        const requestURL = `${AUTH_URL}?client_id=${CLIENT_ID}&response_type=${RESPONSE_TYPE}&scope=${SCOPE}&redirect_uri=${REDIRECT_URI}&state=csrf`
+        const requestURL = `${AUTH_URL}?client_id=${CLIENT_ID}&response_type=${RESPONSE_TYPE}&scope=${SCOPE}&redirect_uri=${REDIRECT_URI}&state=${req.session.csrfToken}`
         res.redirect(requestURL)
     } catch (error) {
         console.error(error.message)
@@ -46,7 +46,7 @@ export const handleCallback = async (req, res) => {
     const { code, state } = req.query
 
     const accessTokenURL = "https://accounts.claveunica.gob.cl/openid/token/"
-    const csrfToken = "csrf"
+    const csrfToken = req.session.csrfToken
     try {
         // Comprueba que el token anti-falsificación sea válido
         if (state !== csrfToken) {
