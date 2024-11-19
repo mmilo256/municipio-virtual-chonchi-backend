@@ -4,9 +4,13 @@ import 'dotenv/config'
 // Obtener información del usuario
 export const getUserInfo = async (req, res) => {
     try {
-        console.log("Access Token:", req.cookies.access_token)
-        console.log("Cookies:", req.cookies)
-        res.status(200).json({ message: "Funcionó" })
+        const token = req.cookies.access_token
+        if (token) {
+            res.status(200).json({ message: "Funcionó", token })
+        } else {
+            res.status(200).json({ message: "Funcionó pero no hay token" })
+        }
+
     } catch (error) {
         console.log(error)
         res.status(400).json({ message: "No se pudo obtener la información del usuario", error: error.message })
@@ -57,11 +61,11 @@ export const handleCallback = async (req, res) => {
             }
         })
         const { access_token } = response.data
+        console.log({ code, state, access_token })
         // Almacenar token en una cookie segura
         res.cookie('access_token', access_token, {
-            httpOnly: true,
-            secure: false,
-            sameSite: 'lax'
+            httpOnly: false,
+            secure: false
         })
         res.redirect(process.env.HOME_URL)
     } catch (error) {
