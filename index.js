@@ -3,6 +3,7 @@ import authRouter from './auth/authRoutes.js'
 import crypto from 'node:crypto'
 import session from "express-session";
 import cookieParser from "cookie-parser";
+import cors from 'cors'
 
 const port = 10000
 const app = e()
