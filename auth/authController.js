@@ -3,14 +3,13 @@ import 'dotenv/config'
 
 // Obtener información del usuario
 export const getUserInfo = async (req, res) => {
+    const token = req.cookies['access_token']
+    if (!token) {
+        res.status(200).json({ message: "No hay token" })
+    }
     try {
-        const token = req.cookies['access_token']
-        if (token) {
-            res.status(200).json({ message: "Funcionó", token })
-        } else {
-            res.status(200).json({ message: "Funcionó pero no hay token" })
-        }
-
+        console.log(token)
+        res.status(200).json({ message: "Token correcto" })
     } catch (error) {
         console.log(error)
         res.status(400).json({ message: "No se pudo obtener la información del usuario", error: error.message })
