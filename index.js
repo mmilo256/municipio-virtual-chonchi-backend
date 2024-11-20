@@ -2,7 +2,6 @@ import e from "express";
 import authRouter from './auth/authRoutes.js'
 import crypto from 'node:crypto'
 import session from "express-session";
-import cookieParser from "cookie-parser";
 import cors from 'cors'
 import { MemoryStore } from "express-session";
 
@@ -15,17 +14,15 @@ app.use(cors({
     methods: ['GET', 'POST', 'OPTIONS']
 }))
 
-app.use(cookieParser())
-
 // Configuración del middleware de sesión
 app.use(session({
-    secret: 'dev',
+    secret: process.env.SESSION_SECRET,
     resave: false,
     store: new MemoryStore({
         checkPeriod: 3600000
     }),
-    saveUninitialized: true,
-    cookie: { secure: false, maxAge: 3600000 }  // Si usas HTTPS, debes poner `secure: true`
+    saveUninitialized: false,
+    cookie: { httpOnly: true, secure: false, maxAge: 3600000 }  // Si usas HTTPS, debes poner `secure: true`
 }));
 
 // Middleware para generar el Token CSRF

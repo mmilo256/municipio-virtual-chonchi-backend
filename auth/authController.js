@@ -3,7 +3,7 @@ import 'dotenv/config'
 
 // Obtener información del usuario
 export const getUserInfo = async (req, res) => {
-    const token = req.cookies['access_token']
+    const token = req.session.access_token
     const userInfoURL = "https://accounts.claveunica.gob.cl/openid/userinfo/"
     if (!token) {
         return res.status(404).json({ message: "No hay token" })
@@ -70,12 +70,8 @@ export const handleCallback = async (req, res) => {
             }
         })
         const { access_token } = response.data
-        // Almacenar token en una cookie segura
-        res.cookie('access_token', access_token, {
-            httpOnly: true,
-            secure: false,
-            sameSite: 'lax'
-        })
+        // Almacenar token en una sesión
+        req.session.access_token = access_token
     } catch (error) {
         console.log(error)
         res.status(400).json({
