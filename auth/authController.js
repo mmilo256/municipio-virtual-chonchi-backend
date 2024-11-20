@@ -75,20 +75,17 @@ export const handleCallback = async (req, res) => {
             })
             const userData = response.data
             console.log(userData)
-            // Guardar la información del usuario en una cookie
+            // Guardar la información del usuario en una cookie y redirecciona a la página de inicio
             res.cookie('userData', userData, {
                 httpOnly: false,
                 secure: false,
                 maxAge: 3600000,
                 sameSite: 'lax'
-            })
-            res.status(200).json({ message: "Datos obtenidos correctamente", data: response.data })
+            }).redirect(process.env.HOME_URL)
         } catch (error) {
             console.log(error)
             res.status(400).json({ message: "No se pudo obtener la información del usuario", error: error.message })
         }
-        // Redireccionar a la página de inicio
-        res.redirect(process.env.HOME_URL)
     } catch (error) {
         console.log(error)
         res.status(400).json({
