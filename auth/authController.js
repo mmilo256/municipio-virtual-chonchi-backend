@@ -3,23 +3,13 @@ import 'dotenv/config'
 
 // Obtener información del usuario
 export const getUserInfo = async (req, res) => {
-    const token = req.session.access_token
-    const userInfoURL = "https://accounts.claveunica.gob.cl/openid/userinfo/"
-    if (!token) {
-        return res.status(404).json({ message: "No hay token" })
+    const userData = req.cookies['userData'];
+
+    if (!userData) {
+        return res.status(401).json({ message: 'No autorizado. Token no encontrado.' });
     }
-    try {
-        const response = await axios.post(userInfoURL, null, {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        })
-        console.log(response.data)
-        res.status(200).json({ message: "Datos obtenidos correctamente", data: response.data })
-    } catch (error) {
-        console.log(error)
-        res.status(400).json({ message: "No se pudo obtener la información del usuario", error: error.message })
-    }
+
+    res.json({ message: 'Acceso autorizado', token: userData });
 }
 
 // Solicitar autorización al servidor de autorización
@@ -72,6 +62,32 @@ export const handleCallback = async (req, res) => {
         const { access_token } = response.data
         // Almacenar token en una sesión
         req.session.access_token = access_token
+        // Obtener la información del usuario
+        const userInfoURL = "https://accounts.claveunica.gob.cl/openid/userinfo/"
+        if (!access_token) {
+            return res.status(404).json({ message: "No hay token" })
+        }
+        try {
+            const response = await axios.post(userInfoURL, null, {
+                headers: {
+                    Authorization: `Bearer ${access_token}`
+                }
+            })
+            const userData = response.data
+            console.log(userData)
+            // Guardar la información del usuario en una cookie
+            res.cookie('userData', userData, {
+                httpOnly: false,
+                secure: false,
+                maxAge: 3600000,
+                sameSite: 'lax'
+            })
+            res.status(200).json({ message: "Datos obtenidos correctamente", data: response.data })
+        } catch (error) {
+            console.log(error)
+            res.status(400).json({ message: "No se pudo obtener la información del usuario", error: error.message })
+        }
+        // Redireccionar a la página de inicio
         res.redirect(process.env.HOME_URL)
     } catch (error) {
         console.log(error)

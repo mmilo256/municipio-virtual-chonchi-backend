@@ -4,9 +4,12 @@ import crypto from 'node:crypto'
 import session from "express-session";
 import cors from 'cors'
 import { MemoryStore } from "express-session";
+import cookieParser from "cookie-parser";
 
 const port = 10000
 const app = e()
+
+app.use(cookieParser())
 
 app.use(cors({
     origin: 'http://localhost:5173',
