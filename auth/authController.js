@@ -39,7 +39,7 @@ export const auth = async (req, res, next) => {
 // Intercambiar código de autorización obtenido después de la autorización por token de acceso
 
 export const handleCallback = async (req, res, next) => {
-    passport.authenticate('claveunica', { failureRedirect: '/' })(req, res, next);
+    passport.authenticate('claveUnica', { failureRedirect: '/' })(req, res, next);
 }
 
 // Mostrar información del usuario después de la autenticación
