@@ -10,7 +10,9 @@ const port = 10000
 const app = e()
 
 app.use(cors({
-    origin: 'http://localhost:5173'
+    origin: 'http://localhost:5173',
+    credentials: true,
+    methods: ['GET', 'POST', 'OPTIONS']
 }))
 
 app.use(cookieParser())
