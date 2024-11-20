@@ -4,7 +4,7 @@ import 'dotenv/config'
 // Obtener información del usuario
 export const getUserInfo = async (req, res) => {
     try {
-        const token = req.cookies.access_token
+        const token = req.cookies['access_token']
         if (token) {
             res.status(200).json({ message: "Funcionó", token })
         } else {
