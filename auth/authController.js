@@ -5,7 +5,7 @@ import 'dotenv/config'
 export const getUserInfo = async (req, res) => {
     const token = req.cookies['access_token']
     if (!token) {
-        res.status(200).json({ message: "No hay token" })
+        return res.status(200).json({ message: "No hay token" })
     }
     try {
         console.log(token)
