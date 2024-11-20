@@ -4,12 +4,18 @@ import 'dotenv/config'
 // Obtener información del usuario
 export const getUserInfo = async (req, res) => {
     const token = req.cookies['access_token']
+    const userInfoURL = "https://accounts.claveunica.gob.cl/openid/userinfo/"
     if (!token) {
         return res.status(404).json({ message: "No hay token" })
     }
     try {
-        console.log(token)
-        res.status(200).json({ message: "Token correcto" })
+        const response = await axios.post(userInfoURL, null, {
+            headers: {
+                Authorization: `Bearer ${req.cookies['access_token']}`
+            }
+        })
+        console.log(response)
+        res.status(200).json({ message: "Datos obtenidos correctamente", data: response.data })
     } catch (error) {
         console.log(error)
         res.status(400).json({ message: "No se pudo obtener la información del usuario", error: error.message })
