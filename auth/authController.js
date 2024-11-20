@@ -5,7 +5,7 @@ import 'dotenv/config'
 export const getUserInfo = async (req, res) => {
     const token = req.cookies['access_token']
     if (!token) {
-        return res.status(200).json({ message: "No hay token" })
+        return res.status(404).json({ message: "No hay token" })
     }
     try {
         console.log(token)
@@ -37,30 +37,33 @@ export const authRequest = async (req, res) => {
 // Intercambiar código de autorización obtenido después de la autorización por token de acceso
 export const handleCallback = async (req, res) => {
     const { code, state } = req.query
-
     const accessTokenURL = "https://accounts.claveunica.gob.cl/openid/token/"
     const csrfToken = req.session.csrfToken
+
+    if (!code || !state) {
+        return res.status(400).json({ message: "Faltan parámetros en la respuesta." })
+    }
+
     try {
         // Comprueba que el token anti-falsificación sea válido
         if (state !== csrfToken) {
             return res.status(400).json({ message: "El token anti-falsificación no es válido.", csrfToken })
         }
         // Intercambiar código de autorización por un token de acceso
-        const authData = {
+        const authData = new URLSearchParams({
             client_id: process.env.CLIENT_ID,
             client_secret: process.env.CLIENT_SECRET,
             redirect_uri: process.env.REDIRECT_URI,
             grant_type: "authorization_code",
             code,
             state
-        }
-        const response = await axios.post(accessTokenURL, authData, {
+        })
+        const response = await axios.post(accessTokenURL, authData.toString(), {
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded"
             }
         })
         const { access_token } = response.data
-        console.log({ code, state, access_token })
         // Almacenar token en una cookie segura
         res.cookie('access_token', access_token, {
             httpOnly: true,
