@@ -1,6 +1,6 @@
 import axios from 'axios'
 import 'dotenv/config'
-import passport from '../config/passport';
+import passport from '../config/passport.js';
 
 // Obtener información del usuario
 /* export const getUserInfo = async (req, res) => {
