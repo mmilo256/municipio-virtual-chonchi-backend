@@ -1,8 +1,9 @@
 import axios from 'axios'
 import 'dotenv/config'
+import passport from '../config/passport';
 
 // Obtener información del usuario
-export const getUserInfo = async (req, res) => {
+/* export const getUserInfo = async (req, res) => {
     const userData = req.cookies['userData'];
 
     if (!userData) {
@@ -10,10 +11,15 @@ export const getUserInfo = async (req, res) => {
     }
 
     res.json({ message: 'Acceso autorizado', token: userData });
-}
+} */
 
 // Solicitar autorización al servidor de autorización
-export const authRequest = async (req, res) => {
+
+export const auth = async (req, res, next) => {
+    passport.authenticate('claveUnica')(req, res, next)
+}
+
+/* export const authRequest = async (req, res) => {
 
     const AUTH_URL = "https://accounts.claveunica.gob.cl/openid/authorize"
     const CLIENT_ID = process.env.CLIENT_ID
@@ -28,10 +34,24 @@ export const authRequest = async (req, res) => {
         console.error(error.message)
         res.status(400).json({ message: error.message })
     }
-}
+} */
 
 // Intercambiar código de autorización obtenido después de la autorización por token de acceso
-export const handleCallback = async (req, res) => {
+
+export const handleCallback = async (req, res, next) => {
+    passport.authenticate('claveunica', { failureRedirect: '/' })(req, res, next);
+}
+
+// Mostrar información del usuario después de la autenticación
+
+export const getUserInfo = async (req, res) => {
+    if (!req.user) {
+        return res.status(401).json({ message: 'No autorizado. Por favor, inicia sesión.' });
+    }
+    res.json({ message: 'Información del usuario', user: req.user });
+}
+
+/* export const handleCallback = async (req, res) => {
     const { code, state } = req.query
     const accessTokenURL = "https://accounts.claveunica.gob.cl/openid/token/"
     const csrfToken = req.session.csrfToken
@@ -92,4 +112,4 @@ export const handleCallback = async (req, res) => {
             message: "Hubo un error", error: error.message
         })
     }
-} 
+}  */

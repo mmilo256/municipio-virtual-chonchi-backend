@@ -5,6 +5,7 @@ import session from "express-session";
 import cors from 'cors'
 import { MemoryStore } from "express-session";
 import cookieParser from "cookie-parser";
+import passport from "./config/passport.js";
 
 const port = 10000
 const app = e()
@@ -27,6 +28,10 @@ app.use(session({
     saveUninitialized: false,
     cookie: { httpOnly: true, secure: false, maxAge: 3600000 }  // Si usas HTTPS, debes poner `secure: true`
 }));
+
+// Inicializar passport
+app.use(passport.initialize())
+app.use(passport.session())
 
 // Middleware para generar el Token CSRF
 app.use((req, res, next) => {

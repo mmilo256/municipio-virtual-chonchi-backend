@@ -1,9 +1,9 @@
 import e from "express";
-import { authRequest, getUserInfo, handleCallback } from "./authController.js";
+import { auth, getUserInfo, handleCallback } from "./authController.js";
 
 const router = e.Router()
 
-router.get("/solicitar-autorizacion", authRequest)
+router.get("/solicitar-autorizacion", auth)
 router.get("/inicio", handleCallback)
 router.get("/user-info", getUserInfo)
 
