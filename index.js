@@ -8,7 +8,11 @@ import { MemoryStore } from "express-session";
 
 const port = 10000
 const app = e()
-app.use(cors())
+
+app.use(cors({
+    origin: 'http://localhost:5173'
+}))
+
 app.use(cookieParser())
 
 // Configuración del middleware de sesión
