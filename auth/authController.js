@@ -11,10 +11,10 @@ export const getUserInfo = async (req, res) => {
     try {
         const response = await axios.post(userInfoURL, null, {
             headers: {
-                Authorization: `Bearer ${req.cookies['access_token']}`
+                Authorization: `Bearer ${token}`
             }
         })
-        console.log(response)
+        console.log(response.data)
         res.status(200).json({ message: "Datos obtenidos correctamente", data: response.data })
     } catch (error) {
         console.log(error)
@@ -76,7 +76,6 @@ export const handleCallback = async (req, res) => {
             secure: false,
             sameSite: 'lax'
         })
-        res.redirect(process.env.HOME_URL)
     } catch (error) {
         console.log(error)
         res.status(400).json({
