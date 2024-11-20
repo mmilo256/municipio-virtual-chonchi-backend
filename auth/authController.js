@@ -1,25 +1,9 @@
 import axios from 'axios'
 import 'dotenv/config'
-import passport from '../config/passport.js';
+import jwt from 'jsonwebtoken'
 
-// Obtener información del usuario
-/* export const getUserInfo = async (req, res) => {
-    const userData = req.cookies['userData'];
-
-    if (!userData) {
-        return res.status(401).json({ message: 'No autorizado. Token no encontrado.' });
-    }
-
-    res.json({ message: 'Acceso autorizado', token: userData });
-} */
-
-// Solicitar autorización al servidor de autorización
-
-export const auth = async (req, res, next) => {
-    passport.authenticate('claveUnica')(req, res, next)
-}
-
-/* export const authRequest = async (req, res) => {
+// Redirección al login de ClaveÚnica
+export const auth = async (req, res) => {
 
     const AUTH_URL = "https://accounts.claveunica.gob.cl/openid/authorize"
     const CLIENT_ID = process.env.CLIENT_ID
@@ -34,37 +18,44 @@ export const auth = async (req, res, next) => {
         console.error(error.message)
         res.status(400).json({ message: error.message })
     }
-} */
-
-// Intercambiar código de autorización obtenido después de la autorización por token de acceso
-
-export const handleCallback = async (req, res, next) => {
-    passport.authenticate('claveUnica', { failureRedirect: '/' })(req, res, next);
 }
 
-// Mostrar información del usuario después de la autenticación
-
-export const getUserInfo = async (req, res) => {
-    if (!req.user) {
-        return res.status(401).json({ message: 'No autorizado. Por favor, inicia sesión.' });
+export const getJWT = async (req, res) => {
+    const token = req.session.access_token
+    try {
+        // Obtiene información del usuario
+        const response = await axios.post("https://accounts.claveunica.gob.cl/openid/userinfo/", null, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+        // Genera el JWT
+        const payload = response.data
+        const tokenJWT = jwt.sign(payload, process.env.JWT_SECRET, {
+            expiresIn: '1h'
+        })
+        res.status(200).json({ jwt: tokenJWT })
+    } catch (error) {
+        console.log(error)
     }
-    res.json({ message: 'Información del usuario', user: req.user });
 }
 
-/* export const handleCallback = async (req, res) => {
+// Callback para intercambiar el código obtenido por un token de acceso
+export const handleCallback = async (req, res, next) => {
     const { code, state } = req.query
     const accessTokenURL = "https://accounts.claveunica.gob.cl/openid/token/"
     const csrfToken = req.session.csrfToken
 
+    // Comprueba que code y state no estén vacíos
     if (!code || !state) {
         return res.status(400).json({ message: "Faltan parámetros en la respuesta." })
     }
-
+    // Comprueba que el token anti-falsificación sea válido
+    if (state !== csrfToken) {
+        return res.status(400).json({ message: "El token anti-falsificación no es válido.", csrfToken })
+    }
     try {
-        // Comprueba que el token anti-falsificación sea válido
-        if (state !== csrfToken) {
-            return res.status(400).json({ message: "El token anti-falsificación no es válido.", csrfToken })
-        }
+
         // Intercambiar código de autorización por un token de acceso
         const authData = new URLSearchParams({
             client_id: process.env.CLIENT_ID,
@@ -82,34 +73,11 @@ export const getUserInfo = async (req, res) => {
         const { access_token } = response.data
         // Almacenar token en una sesión
         req.session.access_token = access_token
-        // Obtener la información del usuario
-        const userInfoURL = "https://accounts.claveunica.gob.cl/openid/userinfo/"
-        if (!access_token) {
-            return res.status(404).json({ message: "No hay token" })
-        }
-        try {
-            const response = await axios.post(userInfoURL, null, {
-                headers: {
-                    Authorization: `Bearer ${access_token}`
-                }
-            })
-            const userData = response.data
-            console.log(userData)
-            // Guardar la información del usuario en una cookie y redirecciona a la página de inicio
-            res.cookie('userData', userData, {
-                httpOnly: false,
-                secure: false,
-                maxAge: 3600000,
-                sameSite: 'lax'
-            }).redirect(process.env.HOME_URL)
-        } catch (error) {
-            console.log(error)
-            res.status(400).json({ message: "No se pudo obtener la información del usuario", error: error.message })
-        }
+        res.redirect("http://localhost:5173/pruebas")
     } catch (error) {
         console.log(error)
         res.status(400).json({
             message: "Hubo un error", error: error.message
         })
     }
-}  */
+} 
