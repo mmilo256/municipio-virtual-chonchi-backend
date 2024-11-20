@@ -1,5 +1,5 @@
 import e from "express";
-import { auth, fastAccessToken, getJWT, handleCallback } from "./authController.js";
+import { auth, getJWT, handleCallback } from "./authController.js";
 
 const router = e.Router()
 
