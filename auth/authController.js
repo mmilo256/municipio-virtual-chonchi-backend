@@ -72,6 +72,7 @@ export const handleCallback = async (req, res) => {
         const { access_token } = response.data
         // Almacenar token en una sesión
         req.session.access_token = access_token
+        res.redirect(process.env.HOME_URL)
     } catch (error) {
         console.log(error)
         res.status(400).json({
