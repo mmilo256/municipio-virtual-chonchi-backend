@@ -10,9 +10,10 @@ export const auth = async (req, res) => {
     const RESPONSE_TYPE = "code"
     const SCOPE = "openid run name"
     const REDIRECT_URI = process.env.REDIRECT_URI
+    const STATE = req.session.csrfToken
 
     try {
-        const requestURL = `${AUTH_URL}?client_id=${CLIENT_ID}&response_type=${RESPONSE_TYPE}&scope=${SCOPE}&redirect_uri=${REDIRECT_URI}&state=${req.session.csrfToken}`
+        const requestURL = `${AUTH_URL}?client_id=${CLIENT_ID}&response_type=${RESPONSE_TYPE}&scope=${SCOPE}&redirect_uri=${REDIRECT_URI}&state=${STATE}`
         res.redirect(requestURL)
     } catch (error) {
         console.error(error.message)
@@ -24,7 +25,7 @@ export const getJWT = async (req, res) => {
     const token = req.session.access_token
     const tokenCookie = req.cookies.access_token
     if (!token) {
-        return res.status(400).json({message: "No se pudo generar el JWT"})
+        return res.status(400).json({ message: "No se pudo generar el JWT" })
     }
     try {
         // Obtiene información del usuario
@@ -78,7 +79,7 @@ export const handleCallback = async (req, res, next) => {
         // Almacenar token en una sesión
         req.session.access_token = access_token
         res.redirect("https://municipio-virtual-chonchi.onrender.com").cookie('access_token', access_token, {
-            maxAge: 360000000, 
+            maxAge: 360000000,
             httpOnly: true,
             sameSite: none,
             secure: true,
