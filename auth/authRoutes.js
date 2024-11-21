@@ -7,9 +7,10 @@ import passport from "passport";
 const router = e.Router()
 
 router.get("/solicitar-autorizacion", auth)
-router.get("/inicio", passport.authenticate('openidconnect', { failureRedirect: "/login", failureMessage: true }), (req, res) => {
-    res.redirect("/")
-})
 router.get("/login", passport.authenticate('openidconnect'))
+router.get("/inicio", passport.authenticate('openidconnect', { failureRedirect: "http://localhost:5173", failureMessage: true }), (req, res) => {
+    res.redirect("http://localhost:5173/inicio")
+})
+
 
 export default router
