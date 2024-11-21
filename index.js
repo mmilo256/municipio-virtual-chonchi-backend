@@ -39,6 +39,15 @@ app.use((req, res, next) => {
 
 app.use('/', authRouter)
 
+// Manejo de sesiones: Passport serializa y deserializa al usuario
+passport.serializeUser(function (user, done) {
+    done(null, user);
+});
+
+passport.deserializeUser(function (obj, done) {
+    done(null, obj);
+});
+
 app.listen(port, () => {
     console.log("Servidor levantado...")
 })

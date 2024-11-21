@@ -11,6 +11,14 @@ export default passport.use(new OpenIDConnectStrategy({
     scope: ["run", "name"],
     clientSecret: process.env.CLIENT_SECRET,
     callbackURL: "https://municipio-virtual.onrender.com/inicio"
-}, (issuer, profile) => {
-    console.log({ issuer, profile })
+}, (issuer, profile, cb) => {
+    // Verificamos que la información del perfil esté disponible y es válida
+    if (!profile) {
+        return cb(new Error('No se pudo obtener el perfil del usuario de Clave Única'));
+    }
+    const user = {
+        ...profile,
+        issuer
+    }
+    return cb(null, user)
 }))
