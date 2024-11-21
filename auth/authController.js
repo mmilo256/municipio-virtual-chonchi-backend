@@ -1,6 +1,4 @@
-import axios from 'axios'
 import 'dotenv/config'
-import jwt from 'jsonwebtoken'
 import * as client from 'openid-client'
 
 export const callback = async (req, res) => {

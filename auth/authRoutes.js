@@ -1,17 +1,13 @@
 import e from "express";
-import { getUserInfo, login } from "./authController.js";
+import { callback, getUserInfo, login } from "./authController.js";
 import '../strategies/openid-strategy.js'
-import passport from "passport";
 
 
 const router = e.Router()
 
 router.get("/user-info", getUserInfo)
 router.get("/login", login)
-router.get("/inicio", passport.authenticate('openidconnect', { failureRedirect: "http://localhost:5173", failureMessage: true }), (req, res) => {
-    console.log(req.session.messages)
-    res.redirect("http://localhost:5173/inicio")
-})
+router.get("/inicio", callback)
 
 
 export default router
