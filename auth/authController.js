@@ -3,7 +3,7 @@ import * as client from 'openid-client'
 
 export const callback = async (req, res) => {
     const { code } = req.query
-    res.send("Ha funcionao:", code)
+    res.json({ message: "Funcionó", code })
 }
 
 export const login = async (req, res) => {
@@ -14,7 +14,6 @@ export const login = async (req, res) => {
     let scope = "openid run name"
     let codeVerifier = client.randomPKCECodeVerifier()
     let codeChallenge = await client.calculatePKCECodeChallenge(codeVerifier)
-    let state
 
     const config = await client.discovery(
         server,
