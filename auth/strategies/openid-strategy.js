@@ -14,11 +14,12 @@ export default passport.use(new OpenIDConnectStrategy({
 }, (issuer, profile, cb) => {
     // Verificamos que la información del perfil esté disponible y es válida
     if (!profile) {
+        console.log("No se pudo obtener el perfil del usuario de Clave Única")
         return cb(new Error('No se pudo obtener el perfil del usuario de Clave Única'));
     }
     const user = {
-        ...profile,
-        issuer
+        ...profile
     }
+    console.log(user)
     return cb(null, user)
 }))

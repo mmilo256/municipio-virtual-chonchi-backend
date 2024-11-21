@@ -1,9 +1,7 @@
 import e from "express";
 import authRouter from './auth/authRoutes.js'
-import crypto from 'node:crypto'
 import session from "express-session";
 import cors from 'cors'
-import { MemoryStore } from "express-session";
 import cookieParser from "cookie-parser";
 import passport from "passport";
 
@@ -13,7 +11,7 @@ const app = e()
 app.use(cookieParser())
 
 app.use(cors({
-    origin: ['https://municipio-virtual.onrender.com', 'https://municipio-virtual-chonchi.onrender.com'],
+    origin: ['https://municipio-virtual.onrender.com', 'https://municipio-virtual-chonchi.onrender.com', 'http://localhost:10000', 'http://localhost:5173', 'https://accounts.claveunica.gob.cl/'],
     credentials: true,
     methods: ['GET', 'POST', 'OPTIONS']
 }))
@@ -29,22 +27,16 @@ app.use(session({
 app.use(passport.initialize())
 app.use(passport.session())
 
-// Middleware para generar el Token CSRF
-app.use((req, res, next) => {
-    if (!req.session.csrfToken) {
-        req.session.csrfToken = crypto.randomBytes(30).toString('hex')
-    }
-    next()
-})
-
 app.use('/', authRouter)
 
 // Manejo de sesiones: Passport serializa y deserializa al usuario
 passport.serializeUser(function (user, done) {
+    console.log(user)
     done(null, user);
 });
 
 passport.deserializeUser(function (obj, done) {
+    console.log(obj)
     done(null, obj);
 });
 
