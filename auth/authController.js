@@ -1,6 +1,44 @@
 import axios from 'axios'
 import 'dotenv/config'
 import jwt from 'jsonwebtoken'
+import * as client from 'openid-client'
+
+export const callback = async (req, res) => {
+    const { code } = req.query
+    res.send("Ha funcionao:", code)
+}
+
+export const login = async (req, res) => {
+    let server = new URL('https://accounts.claveunica.gob.cl/openid')
+    let clientId = process.env.CLIENT_ID || "eca504a7dd70494aa708445892dfb514"
+    let clientSecret = process.env.CLIENT_SECRET || "96df11a9787c4c43bb300f0339fad9cf"
+    let redirect_uri = process.env.REDIRECT_URI || "https://municipio-virtual.onrender.com/inicio"
+    let scope = "openid run name"
+    let codeVerifier = client.randomPKCECodeVerifier()
+    let codeChallenge = await client.calculatePKCECodeChallenge(codeVerifier)
+    let state
+
+    const config = await client.discovery(
+        server,
+        clientId,
+        clientSecret
+    )
+
+    let parameters = {
+        redirect_uri,
+        scope,
+        codeChallenge,
+        codeChallengeMethod: 'S256'
+    }
+
+    if (!config.serverMetadata().supportsPKCE()) {
+        parameters.state = client.randomState()
+    }
+
+    let redirectTo = client.buildAuthorizationUrl(config, parameters)
+
+    res.redirect(redirectTo.href)
+}
 
 export const getUserInfo = (req, res) => {
     console.log(req.session.messages)
