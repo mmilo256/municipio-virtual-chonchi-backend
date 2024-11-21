@@ -25,7 +25,7 @@ app.use(session({
         checkPeriod: 3600000
     }),
     saveUninitialized: false,
-    cookie: { httpOnly: true, secure: false, maxAge: 3600000 }  // Si usas HTTPS, debes poner `secure: true`
+    cookie: { httpOnly: true, secure: true, maxAge: 3600000 }  // Si usas HTTPS, debes poner `secure: true`
 }));
 
 // Middleware para generar el Token CSRF
