@@ -1,7 +1,5 @@
 import e from "express";
 import { callback, getUserInfo, login } from "./authController.js";
-import '../strategies/openid-strategy.js'
-
 
 const router = e.Router()
 
