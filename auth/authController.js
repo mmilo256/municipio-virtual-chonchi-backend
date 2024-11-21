@@ -2,11 +2,12 @@ import 'dotenv/config'
 import * as client from 'openid-client'
 
 export const callback = async (req, res) => {
-    const { code } = req.query
-    res.json({ message: "Funcionó", code })
+    let currentUrl = req.originalUrl
+    res.json({ message: "Funcionó", currentUrl })
 }
 
 export const login = async (req, res) => {
+
     let server = new URL('https://accounts.claveunica.gob.cl/openid')
     let clientId = process.env.CLIENT_ID || "eca504a7dd70494aa708445892dfb514"
     let clientSecret = process.env.CLIENT_SECRET || "96df11a9787c4c43bb300f0339fad9cf"
@@ -14,6 +15,7 @@ export const login = async (req, res) => {
     let scope = "openid run name"
     let codeVerifier = client.randomPKCECodeVerifier()
     let codeChallenge = await client.calculatePKCECodeChallenge(codeVerifier)
+    let state
 
     const config = await client.discovery(
         server,
@@ -29,8 +31,13 @@ export const login = async (req, res) => {
     }
 
     if (!config.serverMetadata().supportsPKCE()) {
-        parameters.state = client.randomState()
+        state = client.randomState()
+        parameters.state = state
+        req.session.state = state
     }
+
+    req.session.config = config
+    req.session.code_verifier = codeVerifier
 
     let redirectTo = client.buildAuthorizationUrl(config, parameters)
 
