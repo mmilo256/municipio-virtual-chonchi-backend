@@ -22,6 +22,9 @@ export const auth = async (req, res) => {
 
 export const getJWT = async (req, res) => {
     const token = req.session.access_token
+    if (!token) {
+        return res.status(400).json({message: "No se pudo generar el JWT"})
+    }
     try {
         // Obtiene información del usuario
         const response = await axios.post("https://accounts.claveunica.gob.cl/openid/userinfo/", null, {
@@ -73,7 +76,7 @@ export const handleCallback = async (req, res, next) => {
         const { access_token } = response.data
         // Almacenar token en una sesión
         req.session.access_token = access_token
-        res.redirect("http://localhost:5173/pruebas")
+        res.redirect("https://municipio-virtual-chonchi.onrender.com")
     } catch (error) {
         console.log(error)
         res.status(400).json({
