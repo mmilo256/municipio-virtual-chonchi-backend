@@ -12,7 +12,7 @@ const app = e()
 app.use(cookieParser())
 
 app.use(cors({
-    origin: 'https://municipio-virtual.onrender.com',
+    origin: ['https://municipio-virtual.onrender.com', 'https://municipio-virtual-chonchi.onrender.com'],
     credentials: true,
     methods: ['GET', 'POST', 'OPTIONS']
 }))
