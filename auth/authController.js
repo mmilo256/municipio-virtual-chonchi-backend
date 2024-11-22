@@ -21,8 +21,17 @@ export const login = async (req, res) => {
     res.redirect(authURL)
 }
 
+export const callback = async (req, res) => { // Callback para develop
+    const {code, state} = req.query
+    if (!code || !state) {
+        return res.send('No funcionó...')
+    }
+    res.send('¡Funcionó!')
+
+}
+
 // Función callback, luego de que el usuario autoriza a la aplicación
-export const callback = async (req, res) => {
+export const callbackProd = async (req, res) => { // Cambiar nombre a callback en prod
     const { code, state } = req.query
 
     // Confirmación del token anti-falsificación
@@ -52,7 +61,7 @@ export const callback = async (req, res) => {
             secure: false, // Cambiar a true en producción
             httpOnly: true
         })
-        res.redirect("https://municipio-virtual-chonchi.onrender.com/pruebas")
+        res.redirect("https://localhost:5173/pruebas")
     } catch (error) {
         console.log(error)
         res.json({ message: "Error", error })
