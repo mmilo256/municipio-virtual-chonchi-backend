@@ -4,9 +4,21 @@ import session from "express-session";
 import cors from 'cors'
 import cookieParser from "cookie-parser";
 import 'dotenv/config'
+import logger from "./config/winstonConfig.js";
 
 const port = 10000
 const app = e()
+
+
+
+// Middleware para registrar solicitudes HTTP
+app.use((req, res, next) => {
+    const { method, url } = req;
+    let message
+    message = `${method} ${url}`;
+    logger.info(`Solicitud HTTP: ${message}`);
+    next();
+});
 
 app.use(cookieParser())
 
