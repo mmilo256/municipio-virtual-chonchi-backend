@@ -1,25 +1,50 @@
 import axios from 'axios'
 import 'dotenv/config'
 import crypto from 'node:crypto'
+import Jwt from 'jsonwebtoken'
+
+// Cerrar sesión
+export const logout = async (req, res) => {
+    res.clearCookie('jwt', {
+        secure: false, // Cambiar a true en producción
+        httpOnly: true
+    })
+    req.session.destroy((err) => {
+        if (err) {
+            console.error(err)
+            return res.status(500).json({message: "No se pudo destruir la sesión"})
+        }
+    })
+    res.send("Se ha destruido la sesión")
+}
 
 // Función para ingresar credenciales en ClaveÚnica
 export const login = async (req, res) => {
-    // Crear token anti-falsificación
-    const csrfToken = crypto.randomBytes(30).toString('hex')
-    req.session.csrfToken = csrfToken
+    try {
+        // Crear token anti-falsificación
+        const csrfToken = crypto.randomBytes(30).toString('hex');
+        req.session.csrfToken = csrfToken;
 
-    // Construir URL para solicitar autorización
-    const params = {
-        client_id: process.env.CLIENT_ID,
-        response_type: "code",
-        scope: "openid run name",
-        redirect_uri: process.env.REDIRECT_URI,
-        state: csrfToken
-    };
-    const queryString = new URLSearchParams(params).toString()
-    const authURL = `https://accounts.claveunica.gob.cl/openid/authorize/?${queryString}`
-    res.redirect(authURL)
-}
+        // Construir URL para solicitar autorización
+        const params = {
+            client_id: process.env.CLIENT_ID,
+            response_type: "code",
+            scope: "openid run name",
+            redirect_uri: process.env.REDIRECT_URI,
+            state: csrfToken
+        };
+
+        const queryString = new URLSearchParams(params).toString();
+        const authURL = `https://accounts.claveunica.gob.cl/openid/authorize/?${queryString}`;
+
+        // Redirigir al usuario a la URL de autorización
+        res.redirect(authURL);
+    } catch (error) {
+        // Manejo de errores
+        console.error('Error en el proceso de login:', error);
+        res.status(500).send('Error al procesar la solicitud de login');
+    }
+};
 
 export const callback = async (req, res) => { // Callback para develop
     const {code, state} = req.query
@@ -33,6 +58,12 @@ export const callback = async (req, res) => { // Callback para develop
 // Función callback, luego de que el usuario autoriza a la aplicación
 export const callbackProd = async (req, res) => { // Cambiar nombre a callback en prod
     const { code, state } = req.query
+
+    // Verifica que se haya recibido el code y state correctamente
+    if (!code || !state) {
+        console.log(error)
+        return res.json({ message: "Faltan parámetros", error })
+    }
 
     // Confirmación del token anti-falsificación
     const csrfToken = req.session.csrfToken
@@ -55,35 +86,41 @@ export const callbackProd = async (req, res) => { // Cambiar nombre a callback e
                 "Content-Type": "application/x-www-form-urlencoded"
             }
         })
-        const { access_token } = response.data
+        const {access_token} = response.data
 
-        res.cookie('access_token', access_token, {
+        // Obtener información del usuario
+        const userDataResponse = await axios.post('https://accounts.claveunica.gob.cl/openid/userinfo', null, {
+            headers: {
+                Authorization: `Bearer ${access_token}`
+            }
+        })
+        const userData = userDataResponse.data
+
+        // Crear JSON Web Token
+        const payload = {
+            run: userData.RolUnico,
+            name: userData.name
+        }
+        const jwt = Jwt.sign(payload, process.env.JWT_SECRET, {
+            expiresIn: '3h'
+        })
+        console.log(jwt)
+        res.cookie('jwt', jwt, {
             secure: false, // Cambiar a true en producción
             httpOnly: true
         })
-        res.redirect("https://localhost:5173/pruebas")
+        res.redirect("http://localhost:5173")
     } catch (error) {
         console.log(error)
-        res.json({ message: "Error", error })
+        res.json({ message: "No se pudo obtener el token de acceso", error })
     }
 }
 
-// Obtener información del usuario
-export const getUserInfo = async (req, res) => {
-    const accessToken = req.cookies['access_token']
-    // Obtener información del usuario con el access_token
-    const userDataResponse = await axios.post('https://accounts.claveunica.gob.cl/openid/userinfo', null, {
-        headers: {
-            Authorization: `Bearer ${accessToken}`
-        }
-    })
-    const userData = userDataResponse.data
-    const sessionData = {
-        accessToken,
-        ...userData
+// Comprobación de sesión para entrar a rutas protegidas
+export const protectedRoute = (req, res) => {
+    const {user} = req.session
+    if (!user) {
+        return res.status(400).send("Debes iniciar sesión para acceder a la ruta protegida")
     }
-    req.user = sessionData
-    console.log("--------------------------------------")
-    console.log(data)
-    res.json({ data })
+    res.status(200).json({user})
 }

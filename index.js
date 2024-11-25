@@ -3,14 +3,12 @@ import authRouter from './auth/authRoutes.js'
 import session from "express-session";
 import cors from 'cors'
 import cookieParser from "cookie-parser";
+import 'dotenv/config'
 
 const port = 10000
 const app = e()
 
 app.use(cookieParser())
-app.use(e.urlencoded({
-    extended: true,
-}));
 
 app.use(cors({
     origin: ['https://municipio-virtual.onrender.com', 'https://municipio-virtual-chonchi.onrender.com', 'http://localhost:10000', 'http://localhost:5173', 'https://accounts.claveunica.gob.cl/'],
