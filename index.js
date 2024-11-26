@@ -1,13 +1,19 @@
 import e from "express";
 import authRouter from './auth/authRoutes.js'
+import proceduresRouter from './Routes/proceduresRoutes.js'
 import session from "express-session";
 import cors from 'cors'
 import cookieParser from "cookie-parser";
 import 'dotenv/config'
 import logger from "./config/winstonConfig.js";
+import initializeDB from "./config/db/init.js";
 
 const port = 10000
 const app = e()
+
+
+// Inicializar base de datos
+await initializeDB()
 
 
 
@@ -40,6 +46,7 @@ app.use(session({
 }));
 
 app.use('/', authRouter)
+app.use("/procedures", proceduresRouter)
 
 app.listen(port, () => {
     console.log("Servidor levantado...")

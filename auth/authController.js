@@ -8,7 +8,6 @@ import { userInfoLogFormat } from '../utils/utils.js'
 // Cerrar sesión
 export const logout = async (req, res) => {
     const { user } = req.session
-    console.log(user.name)
     res.clearCookie('jwt', {
         secure: false, // Cambiar a true en producción
         httpOnly: true
@@ -54,7 +53,7 @@ export const login = async (req, res) => {
     }
 };
 
-export const callback = async (req, res) => { // Callback para develop
+export const callbackDev = async (req, res) => { // Callback para develop
     const { code, state } = req.query
     if (!code || !state) {
         return res.send('No funcionó...')
@@ -64,7 +63,7 @@ export const callback = async (req, res) => { // Callback para develop
 }
 
 // Función callback, luego de que el usuario autoriza a la aplicación
-export const callbackProd = async (req, res) => { // Cambiar nombre a callback en prod
+export const callback = async (req, res) => { // Cambiar nombre a callback en prod
     const { code, state } = req.query
 
     // Verifica que se haya recibido el code y state correctamente
