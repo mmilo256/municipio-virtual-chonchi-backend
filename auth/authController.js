@@ -53,7 +53,7 @@ export const login = async (req, res) => {
     }
 };
 
-export const callbackDev = async (req, res) => { // Callback para develop
+export const callback = async (req, res) => { // Callback para develop
     const { code, state } = req.query
     if (!code || !state) {
         return res.send('No funcionó...')
@@ -63,7 +63,7 @@ export const callbackDev = async (req, res) => { // Callback para develop
 }
 
 // Función callback, luego de que el usuario autoriza a la aplicación
-export const callback = async (req, res) => { // Cambiar nombre a callback en prod
+export const callbackProd = async (req, res) => { // Cambiar nombre a callback en prod
     const { code, state } = req.query
 
     // Verifica que se haya recibido el code y state correctamente
